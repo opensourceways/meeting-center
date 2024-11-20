@@ -14,13 +14,13 @@ logger = logging.getLogger("log")
 class MeetingApp:
     meeting_adapter_impl = MeetingAdapterImpl()
 
-    def create(self, meeting):
+    def create(self, meeting_data):
         """create meeting"""
-        return self.meeting_adapter_impl.create(meeting)
+        return self.meeting_adapter_impl.create(meeting_data)
 
     def update(self, meeting_id, meeting_data):
         """update meeting"""
-        return self.meeting_adapter_impl.update(meeting_id, **meeting_data)
+        return self.meeting_adapter_impl.update(meeting_id, meeting_data)
 
     def delete(self, meeting_id):
         """delete meeting"""

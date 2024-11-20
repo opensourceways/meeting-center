@@ -6,59 +6,21 @@
 # @Software: PyCharm
 
 import logging
-import math
 from datetime import datetime
 
 from django.conf import settings
-from rest_framework import serializers
-from rest_framework.serializers import ModelSerializer
 
 from meeting_center.utils.check_params import check_field, check_invalid_content, check_email_list, check_date, \
     check_time, check_link, check_duration
+from meeting_center.utils.customized.my_serializers import MyBaseSerializer
 from meeting_center.utils.ret_api import MyValidationError
 from meeting_center.utils.ret_code import RetCode
-
-from meeting.models import Meeting
 
 logger = logging.getLogger("log")
 
 
-class MeetingSerializer(ModelSerializer):
+class MeetingSerializer(MyBaseSerializer):
     """MeetingSerializer for get a meeting and create meeting"""
-
-    duration = serializers.SerializerMethodField()
-    duration_time = serializers.SerializerMethodField()
-
-    class Meta:
-        """Meta Meta"""
-        model = Meeting
-        fields = ['id', 'sponsor', 'group_name', 'community', 'topic', 'platform', 'date', 'start', 'end',
-                  'agenda', 'etherpad', 'email_list', 'mid', 'm_mid', 'is_record', 'upload_status',
-                  'join_url', 'replay_url', 'create_time', 'update_time', 'duration', 'duration_time']
-        extra_kwargs = {
-            'id': {'read_only': True},
-            'sponsor': {'required': True},
-            'group_name': {'required': True},
-            'community': {'required': True},
-            'topic': {'required': True},
-            'platform': {'required': True},
-            'date': {'required': True},
-            'start': {'required': True},
-            'end': {'required': True},
-            'agenda': {'required': False},
-            'etherpad': {'required': False},
-            'email_list': {'required': False},
-            'is_record': {'required': True},
-            'mid': {'read_only': True},
-            'm_mid': {'read_only': True},
-            'upload_status': {'read_only': True},
-            'join_url': {'read_only': True},
-            'replay_url': {'read_only': True},
-            'create_time': {'read_only': True},
-            'update_time': {'read_only': True},
-            'duration': {'read_only': True},
-            'duration_time': {'read_only': True},
-        }
 
     def validate_sponsor(self, value):
         """check length of 64"""
@@ -131,6 +93,7 @@ class MeetingSerializer(ModelSerializer):
             return value
 
     def validate(self, attrs):
+        super(MeetingSerializer, self).__init__(attrs)
         etherpad = attrs.get("etherpad")
         if etherpad is not None and not etherpad.startswith(settings.COMMUNITY_ETHERPAD[attrs["community"]]):
             logger.error("invalid etherpad:{}".format(etherpad))
@@ -141,50 +104,9 @@ class MeetingSerializer(ModelSerializer):
             raise MyValidationError(RetCode.STATUS_PARAMETER_ERROR)
         return attrs
 
-    def get_duration(self, obj):
-        """get duration"""
-        return math.ceil(float(obj.end.replace(':', '.'))) - math.floor(float(obj.start.replace(':', '.')))
 
-    def get_duration_time(self, obj):
-        """get duration time"""
-        return obj.start.split(':')[0] + ':00' + '-' + str(math.ceil(float(obj.end.replace(':', '.')))) + ':00'
-
-
-class SingleMeetingSerializer(ModelSerializer):
+class SingleMeetingSerializer(MeetingSerializer):
     """UpdateMeetingSerializer for update meeting"""
-    duration = serializers.SerializerMethodField()
-    duration_time = serializers.SerializerMethodField()
-
-    class Meta:
-        """Meta Meta"""
-        model = Meeting
-        fields = ['id', 'sponsor', 'group_name', 'community', 'topic', 'platform', 'date', 'start', 'end',
-                  'agenda', 'etherpad', 'email_list', 'mid', 'm_mid', 'is_record', 'upload_status',
-                  'join_url', 'replay_url', 'create_time', 'update_time', 'duration', 'duration_time']
-        extra_kwargs = {
-            'id': {'read_only': True},
-            'sponsor': {'read_only': True},
-            'group_name': {'read_only': True},
-            'community': {'read_only': True},
-            'platform': {'read_only': True},
-            'topic': {'required': True},
-            'date': {'required': True},
-            'start': {'required': True},
-            'end': {'required': True},
-            'agenda': {'required': False},
-            'etherpad': {'required': False},
-            'is_record': {'required': True},
-            'email_list': {'read_only': True},
-            'mid': {'read_only': True},
-            'm_mid': {'read_only': True},
-            'upload_status': {'read_only': True},
-            'join_url': {'read_only': True},
-            'replay_url': {'read_only': True},
-            'create_time': {'read_only': True},
-            'update_time': {'read_only': True},
-            'duration': {'read_only': True},
-            'duration_time': {'read_only': True},
-        }
 
     def validate_topic(self, value):
         """check length of 128，not include \r\n url xss"""
@@ -229,14 +151,7 @@ class SingleMeetingSerializer(ModelSerializer):
 
     def validate(self, attrs):
         """all validate data"""
+        super(SingleMeetingSerializer, self).__init__(attrs)
         check_duration(attrs["start"], attrs["end"], attrs["date"], datetime.now())
         attrs["update_time"] = datetime.now()
         return attrs
-
-    def get_duration(self, obj):
-        """get duration"""
-        return math.ceil(float(obj.end.replace(':', '.'))) - math.floor(float(obj.start.replace(':', '.')))
-
-    def get_duration_time(self, obj):
-        """get duration time"""
-        return obj.start.split(':')[0] + ':00' + '-' + str(math.ceil(float(obj.end.replace(':', '.')))) + ':00'

@@ -5,14 +5,9 @@
 # @FileName: meeting_controller.py
 # @Software: PyCharm
 from rest_framework.authentication import BasicAuthentication
-from rest_framework.filters import SearchFilter
-from rest_framework.generics import CreateAPIView, DestroyAPIView, GenericAPIView, ListAPIView, RetrieveAPIView
+from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated
-
-from meeting_center.utils.customized.my_pagination import MyPagination
-from meeting_center.utils.customized.my_serializers import MySerializerParse, EmptySerializers
 from meeting_center.utils.ret_api import ret_json, capture_my_validation_exception, MyValidationError
-from meeting_center.utils.customized.my_view import MyRetrieveModelMixin, MyUpdateAPIView, MyListModelMixin
 from meeting_center.utils.operation_log import OperationLogModule, OperationLogDesc, OperationLogType, \
     logger_wrapper, set_log_thread_local, log_key
 
@@ -22,25 +17,27 @@ from meeting.controller.serializers.meeting_serializers import MeetingSerializer
 from meeting_center.utils.ret_code import RetCode
 
 
-class MeetingView(MySerializerParse, MyListModelMixin, ListAPIView, CreateAPIView):
+class MeetingView(GenericAPIView):
     """create or list meeting"""
     serializer_class = MeetingSerializer
     authentication_classes = (BasicAuthentication,)
     permission_classes = (IsAuthenticated,)
     app_class = MeetingApp()
+    order_by = ["date", "create_time", "update_time"]
+    order_type = ["asc", "desc"]
 
     @capture_my_validation_exception
     @logger_wrapper(OperationLogModule.OP_MODULE_MEETING, OperationLogType.OP_TYPE_CREATE,
                     OperationLogDesc.OP_DESC_MEETING_CREATE_CODE)
-    def create(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         """create meeting api"""
         set_log_thread_local(request, log_key, [request.data.get('community'), request.data.get('topic')])
-        meeting = self.get_my_serializer_data(request)
+        meeting = self.serializer_class.validate(request.data)
         data = self.app_class.create(meeting)
         return ret_json(data=data)
 
-    def get(self, *args, **kwargs):
-        order_by = self.request.query_params.get("order_by")
+    def get(self, request, *args, **kwargs):
+        order_by = request.query_params.get("order_by")
         if order_by and order_by not in self.order_by:
             raise MyValidationError(RetCode.STATUS_PARAMETER_ERROR)
         if not order_by:
@@ -51,22 +48,28 @@ class MeetingView(MySerializerParse, MyListModelMixin, ListAPIView, CreateAPIVie
         return self.app_class.get(order_by)
 
 
-class SingleMeetingView(MySerializerParse, MyRetrieveModelMixin, MyUpdateAPIView, RetrieveAPIView, DestroyAPIView):
+class SingleMeetingView(GenericAPIView):
     """get or update or delete meeting"""
     serializer_class = SingleMeetingSerializer
     authentication_classes = (BasicAuthentication,)
     permission_classes = (IsAuthenticated,)
     app_class = MeetingApp()
 
+    def get(self, request, *args, **kwargs):
+        """get meeting api"""
+        meeting_id = kwargs.get('id')
+        return self.app_class.get(meeting_id=meeting_id)
+
     @capture_my_validation_exception
     @logger_wrapper(OperationLogModule.OP_MODULE_MEETING, OperationLogType.OP_TYPE_MODIFY,
                     OperationLogDesc.OP_DESC_MEETING_UPDATE_CODE)
-    def update(self, request, *args, **kwargs):
+    def put(self, request, *args, **kwargs):
         """update meeting api"""
+        meeting_id = kwargs.get('id')
         set_log_thread_local(request, log_key, [request.data.get('community'),
                                                 request.data.get('topic'), kwargs.get('id')])
-        meeting = self.get_my_serializer_data(request)
-        data = self.app_class.update(request, kwargs.get('id'), meeting)
+        meeting = self.serializer_class.validate(request.data)
+        data = self.app_class.update(meeting_id, meeting)
         return ret_json(data=data)
 
     @capture_my_validation_exception
@@ -74,30 +77,16 @@ class SingleMeetingView(MySerializerParse, MyRetrieveModelMixin, MyUpdateAPIView
                     OperationLogDesc.OP_DESC_MEETING_DELETE_CODE)
     def destroy(self, request, *args, **kwargs):
         """delete meeting by mid"""
+        meeting_id = kwargs.get('id')
         set_log_thread_local(request, log_key, ["", "", kwargs.get('id')])
-        data = self.app_class.delete(request, kwargs.get('id'))
+        data = self.app_class.delete(meeting_id)
         return ret_json(data=data)
 
 
-class MeetingParticipantsView(RetrieveAPIView, GenericAPIView):
-    lookup_field = "id"
-    serializer_class = EmptySerializers
-    queryset = MeetingApp.meeting_dao.get_queryset()
-    authentication_classes = (BasicAuthentication,)
-    app_class = MeetingApp()
-
-    def retrieve(self, *args, **kwargs):
-        data = self.app_class.get_participants(kwargs.get('id'))
-        return ret_json(data=data)
-
-
-class MeetingPlatformView(MyListModelMixin, GenericAPIView):
-    serializer_class = EmptySerializers
-    queryset = None
+class MeetingPlatformView(GenericAPIView):
     authentication_classes = (BasicAuthentication,)
     app_class = MeetingApp()
 
     def get(self, request, *args, **kwargs):
-        community = request.query_params.get("community")
-        data = self.app_class.get_meeting_platform(community)
-        return ret_json(data=data)
+        """get meeting platform"""
+        return self.app_class.get_meeting_platform()

@@ -22,12 +22,12 @@ class MeetingAdapterImpl(MeetingAdapter):
         """init meeting adapter impl"""
         self._request_handler = reqeust_handler
 
-    def create(self, *args, **kwargs):
-        return self._request_handler.post(self.create_url, json_data=kwargs)
+    def create(self, meeting_data):
+        return self._request_handler.post(self.create_url, json_data=meeting_data)
 
-    def update(self, meeting_id, **kwargs):
+    def update(self, meeting_id, meeting_data):
         url = self.put_url.format(meeting_id)
-        return self._request_handler.put(url, json_data=kwargs)
+        return self._request_handler.put(url, json_data=meeting_data)
 
     def delete(self, meeting_id, **kwargs):
         url = self.delete_url.format(meeting_id)
