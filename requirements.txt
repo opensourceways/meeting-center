@@ -1,0 +1,10 @@
+Django==4.2.16
+django-cors-headers==4.4.0
+django-filter==24.3
+djangorestframework==3.15.2
+djangorestframework-simplejwt==5.3.1
+mysqlclient==2.0.3
+PyMySQL==1.1.1
+pyyaml==6.0.1
+uwsgi==2.0.22
+drf-yasg==1.21.7
