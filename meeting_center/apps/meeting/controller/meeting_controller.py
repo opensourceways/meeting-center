@@ -12,6 +12,7 @@ from meeting_center.utils.ret_api import ret_json, capture_my_validation_excepti
 from meeting_center.utils.operation_log import OperationLogModule, OperationLogDesc, OperationLogType, \
     logger_wrapper, set_log_thread_local, log_key
 
+from meeting.application.meeting_group import MeetingGroupApp
 from meeting.application.meeting import MeetingApp
 from meeting.controller.serializers.meeting_serializers import MeetingSerializer, \
     SingleMeetingSerializer
@@ -130,3 +131,13 @@ class MeetingsView(GenericAPIView):
         date = self.request.query_params.get("date")
         status_code, data = self.app_class.get_meeting_data(date)
         return ret_json(status_code=status_code, **data)
+
+
+class MeetingGroupView(GenericAPIView):
+    app_class = MeetingGroupApp()
+
+    def get(self, request, *args, **kwargs):
+        """get meeting date in website"""
+        username = request.user.username
+        data = self.app_class.get_groups(username)
+        return ret_json(data=data)
