@@ -125,16 +125,16 @@ class OperationLogDesc(OperationBase):
 
     CN_OPERATION = {
         # meeting
-        OP_DESC_MEETING_CREATE_CODE: "创建会议（%s/%s）。",
-        OP_DESC_MEETING_UPDATE_CODE: "修改会议（%s/%s/%s）。",
-        OP_DESC_MEETING_DELETE_CODE: "删除会议（%s/%s/%s）。",
+        OP_DESC_MEETING_CREATE_CODE: "创建会议（%s）。",
+        OP_DESC_MEETING_UPDATE_CODE: "修改会议（%s/%s）。",
+        OP_DESC_MEETING_DELETE_CODE: "删除会议（%s/%s）。",
     }
 
     EN_OPERATION = {
         # meeting
-        OP_DESC_MEETING_CREATE_CODE: "Create meeting(%s/%s).",
-        OP_DESC_MEETING_UPDATE_CODE: "Update meeting(%s/%s/%s).",
-        OP_DESC_MEETING_DELETE_CODE: "Delete meeting(%s/%s/%s).",
+        OP_DESC_MEETING_CREATE_CODE: "Create meeting(%s).",
+        OP_DESC_MEETING_UPDATE_CODE: "Update meeting(%s/%s).",
+        OP_DESC_MEETING_DELETE_CODE: "Delete meeting(%s/%s).",
 
     }
 

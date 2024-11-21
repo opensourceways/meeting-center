@@ -6,6 +6,7 @@
 # @Software: PyCharm
 
 import logging
+import traceback
 from datetime import datetime
 
 from django.conf import settings
@@ -21,12 +22,6 @@ logger = logging.getLogger("log")
 
 class MeetingSerializer(MyBaseSerializer):
     """MeetingSerializer for get a meeting and create meeting"""
-
-    def validate_sponsor(self, value):
-        """check length of 64"""
-        check_field(value, 64)
-        check_invalid_content(value)
-        return value
 
     def validate_group_name(self, value):
         """check length of 64"""
@@ -53,8 +48,8 @@ class MeetingSerializer(MyBaseSerializer):
 
     def validate_date(self, value):
         """check date"""
-        check_date(value)
-        return value
+        value = check_date(value)
+        return value.strftime('%Y-%m-%d')
 
     def validate_start(self, value):
         """check start"""
@@ -93,15 +88,12 @@ class MeetingSerializer(MyBaseSerializer):
             return value
 
     def validate(self, attrs):
-        super(MeetingSerializer, self).__init__(attrs)
+        super(MeetingSerializer, self).validate(attrs)
         etherpad = attrs.get("etherpad")
-        if etherpad is not None and not etherpad.startswith(settings.COMMUNITY_ETHERPAD[attrs["community"]]):
+        if etherpad is not None and not etherpad.startswith(settings.COMMUNITY_ETHERPAD):
             logger.error("invalid etherpad:{}".format(etherpad))
             raise MyValidationError(RetCode.STATUS_PARAMETER_ERROR)
         check_duration(attrs["start"], attrs["end"], attrs["date"], datetime.now())
-        if attrs["platform"] not in settings.COMMUNITY_HOST[attrs["community"]].keys():
-            logger.error('platform {} is not exist in COMMUNITY_HOST.'.format(attrs["platform"]))
-            raise MyValidationError(RetCode.STATUS_PARAMETER_ERROR)
         return attrs
 
 
@@ -116,8 +108,8 @@ class SingleMeetingSerializer(MeetingSerializer):
 
     def validate_date(self, value):
         """check date"""
-        check_date(value)
-        return value
+        value = check_date(value)
+        return value.strftime('%Y-%m-%d')
 
     def validate_start(self, value):
         """check start"""
@@ -151,7 +143,14 @@ class SingleMeetingSerializer(MeetingSerializer):
 
     def validate(self, attrs):
         """all validate data"""
-        super(SingleMeetingSerializer, self).__init__(attrs)
-        check_duration(attrs["start"], attrs["end"], attrs["date"], datetime.now())
-        attrs["update_time"] = datetime.now()
-        return attrs
+        try:
+            etherpad = attrs.get("etherpad")
+            if etherpad is not None and not etherpad.startswith(settings.COMMUNITY_ETHERPAD):
+                logger.error("invalid etherpad:{}".format(etherpad))
+                raise MyValidationError(RetCode.STATUS_PARAMETER_ERROR)
+            super(SingleMeetingSerializer, self).validate(attrs)
+            check_duration(attrs["start"], attrs["end"], attrs["date"], datetime.now())
+            return attrs
+        except (ValueError, KeyError) as e:
+            logger.info("e:{}, traceback:{}".format(e, traceback.format_exc()))
+            raise MyValidationError(RetCode.STATUS_PARAMETER_ERROR)

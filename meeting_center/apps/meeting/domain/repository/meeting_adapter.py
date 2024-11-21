@@ -38,7 +38,3 @@ class MeetingAdapter(ABC):
     @abstractmethod
     def get_meeting_date(self, *args, **kwargs):
         raise NotImplementedError
-
-    @abstractmethod
-    def get_meeting_by_date(self, *args, **kwargs):
-        pass

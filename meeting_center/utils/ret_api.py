@@ -91,13 +91,16 @@ class MyInnerResult(APIException):
         return ret_json(code=self.code, msg=self.msg, en_msg=self.en_msg)
 
 
-def ret_json(code=200, msg="success", data=None, en_msg=None, **kwargs):
+def ret_json(code=200, msg="success", data=None, en_msg=None, status_code=200, **kwargs):
     """return the json data"""
     ret_dict = {'code': code, 'msg': msg, "data": data}
     if en_msg:
         ret_dict["en_msg"] = en_msg
     ret_dict.update(kwargs)
-    return JsonResponse(ret_dict)
+    resp = JsonResponse(ret_dict)
+    if status_code != 200:
+        resp.status_code = status_code
+    return resp
 
 
 def capture_my_validation_exception(fn):
