@@ -9,17 +9,23 @@ from requests.auth import HTTPBasicAuth
 
 
 class RequestHandler:
-    def __init__(self, username, password, timeout=None):
+    def __init__(self, username=None, password=None, timeout=None):
         self.timeout = timeout if not timeout else 60
-        self._auth = HTTPBasicAuth(username, password)
+        if username and password:
+            self._auth = HTTPBasicAuth(username, password)
+        else:
+            self._auth = None
 
-    def get(self, url, is_json=True, is_suppress_error=True):
-        resp = requests.get(url, auth=self._auth, timeout=(self.timeout, self.timeout))
+    def get(self, url, cookies=None, headers=None, is_json=True, is_resp=False, is_suppress_error=True):
+        resp = requests.get(url, auth=self._auth, cookies=cookies, headers=headers,
+                            timeout=(self.timeout, self.timeout))
         if not str(resp.status_code).startswith("20") and not is_suppress_error:
             raise RuntimeError(
                 "get the url failed, return status is:{} the detail is:{}".format(resp.status_code, resp.content))
         if is_json:
             return resp.status_code, resp.json()
+        if is_resp:
+            return resp.status_code, resp
         return resp.status_code, resp.content
 
     def post(self, url, json_data=None, data=None, is_suppress_error=True):
