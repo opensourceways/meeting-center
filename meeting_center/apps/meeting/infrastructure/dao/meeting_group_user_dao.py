@@ -15,5 +15,9 @@ class MeetingGroupUserDao:
     def get_groups_by_username(cls, username):
         return cls.dao.objects.filter(username=username).all()
 
+    @classmethod
+    def get_group_user(cls, username, group_name):
+        return cls.dao.objects.filter(username=username, group__group_name=group_name)
+
 
 

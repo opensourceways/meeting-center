@@ -79,7 +79,7 @@ class SingleMeetingView(GenericAPIView):
         if status_code != 200 or data["code"] != 200:
             return ret_json(status_code=status_code, **data)
         if data["data"]["sponsor"] != request.user.username:
-            raise MyNoPermission(RetCode.STATUS_MEETING_NO_PERMISSION)
+            raise MyNoPermission(RetCode.STATUS_MEETING_MODIFY_NO_PERMISSION)
         set_log_thread_local(request, log_key, [data["data"]["topic"], kwargs.get('id')])
         meeting = self.serializer_class.validate(request.data)
         status_code, data = self.app_class.update(meeting_id, meeting)
@@ -96,7 +96,7 @@ class SingleMeetingView(GenericAPIView):
         if status_code != 200 or data["code"] != 200:
             return ret_json(status_code=status_code, **data)
         if data["data"]["sponsor"] != request.user.username:
-            raise MyNoPermission(RetCode.STATUS_MEETING_NO_PERMISSION)
+            raise MyNoPermission(RetCode.STATUS_MEETING_DELETE_NO_PERMISSION)
         set_log_thread_local(request, log_key, [data["data"]["topic"], kwargs.get('id')])
         status_code, data = self.app_class.delete(meeting_id)
         return ret_json(status_code=status_code, **data)
@@ -111,6 +111,18 @@ class MeetingPlatformView(GenericAPIView):
         """get meeting platform"""
         status_code, data = self.app_class.get_meeting_platform()
         return ret_json(status_code=status_code, **data)
+
+
+class MeetingGroupView(GenericAPIView):
+    authentication_classes = (CommunityAuthentication,)
+    permission_classes = (MaintainerCommitterPermission,)
+    app_class = MeetingGroupApp()
+
+    def get(self, request, *args, **kwargs):
+        """get meeting date in website"""
+        username = request.user.username
+        data = self.app_class.get_groups(username)
+        return ret_json(data=data)
 
 
 class MeetingDateView(GenericAPIView):
@@ -131,13 +143,3 @@ class MeetingsView(GenericAPIView):
         date = self.request.query_params.get("date")
         status_code, data = self.app_class.get_meeting_data(date)
         return ret_json(status_code=status_code, **data)
-
-
-class MeetingGroupView(GenericAPIView):
-    app_class = MeetingGroupApp()
-
-    def get(self, request, *args, **kwargs):
-        """get meeting date in website"""
-        username = request.user.username
-        data = self.app_class.get_groups(username)
-        return ret_json(data=data)

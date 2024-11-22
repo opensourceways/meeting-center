@@ -58,11 +58,13 @@ class RetCode(RetCodeBase):
     STATUS_MEETING_NO_AVAILABLE_HOST = STATUS_FACILITY_MEETING + 5
     STATUS_MEETING_DATE_CONFLICT = STATUS_FACILITY_MEETING + 6
     STATUS_MEETING_CANNOT_BE_OPERATE = STATUS_FACILITY_MEETING + 7
-    STATUS_MEETING_NO_PERMISSION = STATUS_FACILITY_MEETING + 8
-    STATUS_MEETING_INVALID_GROUP_NAME = STATUS_FACILITY_MEETING + 9
-    STATUS_MEETING_INVALID_START = STATUS_FACILITY_MEETING + 10
-    STATUS_MEETING_NOT_EXIST = STATUS_FACILITY_MEETING + 11
-    STATUS_MEETING_FAILED_UPDATE = STATUS_FACILITY_MEETING + 12
+    STATUS_MEETING_CREATE_NO_PERMISSION = STATUS_FACILITY_MEETING + 8
+    STATUS_MEETING_MODIFY_NO_PERMISSION = STATUS_FACILITY_MEETING + 9
+    STATUS_MEETING_DELETE_NO_PERMISSION = STATUS_FACILITY_MEETING + 10
+    STATUS_MEETING_INVALID_GROUP_NAME = STATUS_FACILITY_MEETING + 11
+    STATUS_MEETING_INVALID_START = STATUS_FACILITY_MEETING + 12
+    STATUS_MEETING_NOT_EXIST = STATUS_FACILITY_MEETING + 13
+    STATUS_MEETING_FAILED_UPDATE = STATUS_FACILITY_MEETING + 14
 
     EN_OPERATION = {
         # common
@@ -95,7 +97,9 @@ class RetCode(RetCodeBase):
                                           "view scheduled meetings",
         STATUS_MEETING_DATE_CONFLICT: "Time conflict, please adjust the time to schedule the meeting",
         STATUS_MEETING_CANNOT_BE_OPERATE: "Cannot be deleted or update 1 hours before the meeting",
-        STATUS_MEETING_NO_PERMISSION: "Failed to create a meeting due to insufficient permissions",
+        STATUS_MEETING_CREATE_NO_PERMISSION: "Failed to create a meeting due to insufficient permissions",
+        STATUS_MEETING_MODIFY_NO_PERMISSION: "Failed to modify a meeting due to insufficient permissions",
+        STATUS_MEETING_DELETE_NO_PERMISSION: "Failed to delete a meeting due to insufficient permissions",
         STATUS_MEETING_INVALID_GROUP_NAME: "Invalid SIG name",
         STATUS_MEETING_INVALID_START: "The start time should not be earlier than the current time",
         STATUS_MEETING_NOT_EXIST: "Meeting does not exist",
@@ -132,7 +136,9 @@ class RetCode(RetCodeBase):
         STATUS_MEETING_NO_AVAILABLE_HOST: "目前没有可用的主持人，请前往官网查看预约会议",
         STATUS_MEETING_DATE_CONFLICT: "时间冲突，请调整时间预定会议(距离会议开始和结束半小时内存在会议)",
         STATUS_MEETING_CANNOT_BE_OPERATE: "距离会议开始时间小于一个小时，无法修改或删除",
-        STATUS_MEETING_NO_PERMISSION: "权限不足导致创建会议失败",
+        STATUS_MEETING_CREATE_NO_PERMISSION: "权限不足导致创建会议失败",
+        STATUS_MEETING_MODIFY_NO_PERMISSION: "权限不足导致修改会议失败",
+        STATUS_MEETING_DELETE_NO_PERMISSION: "权限不足导致删除会议失败",
         STATUS_MEETING_INVALID_GROUP_NAME: "错误的SIG组名",
         STATUS_MEETING_INVALID_START: "请输入正确的开始时间",
         STATUS_MEETING_NOT_EXIST: "会议不存在",

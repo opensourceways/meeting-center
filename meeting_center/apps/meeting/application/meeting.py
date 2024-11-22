@@ -7,16 +7,24 @@
 import logging
 from django.conf import settings
 
+from meeting.infrastructure.dao.meeting_group_user_dao import MeetingGroupUserDao
 from meeting.infrastructure.adapter.meeting_adapter_impl import MeetingAdapterImpl
+from meeting_center.utils.ret_api import MyValidationError
+from meeting_center.utils.ret_code import RetCode
 
 logger = logging.getLogger("log")
 
 
 class MeetingApp:
     meeting_adapter_impl = MeetingAdapterImpl()
+    meeting_group_user_dao = MeetingGroupUserDao
 
     def create(self, request, meeting_data):
         """create meeting"""
+        user = self.meeting_group_user_dao.get_group_user(request.user.username,
+                                                          meeting_data["group_name"])
+        if not len(user):
+            raise MyValidationError(RetCode.STATUS_MEETING_CREATE_NO_PERMISSION)
         meeting_data["community"] = settings.COMMUNITY
         meeting_data["sponsor"] = request.user.username
         return self.meeting_adapter_impl.create(meeting_data)
