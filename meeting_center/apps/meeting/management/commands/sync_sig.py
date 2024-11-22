@@ -42,11 +42,11 @@ class UserGroupDao:
                 )
 
             # 2.delete users
-            user_names = self._group_user_dao.objects.filter(group__group_name=group_name) \
-                .distinct().values("username")
-            user_names = [user_name for user_name in user_names]
-            need_delete = list(set(user_names) - set(sig_infos[group_name]["users"]))
-            self._group_user_dao.objects.filter(username__in=need_delete).delete()
+            # user_names = self._group_user_dao.objects.filter(group__group_name=group_name) \
+            #     .distinct().values("username")
+            # user_names = [user_name for user_name in user_names]
+            # need_delete = list(set(user_names) - set(sig_infos[group_name]["users"]))
+            # self._group_user_dao.objects.filter(username__in=need_delete).delete()
             # 3.add users
             for username in sig_infos[group_name]["users"]:
                 count = self._group_user_dao.objects.filter(group=group, username=username).count()
