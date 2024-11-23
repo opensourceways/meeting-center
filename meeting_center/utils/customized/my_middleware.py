@@ -10,8 +10,6 @@ from django.utils.deprecation import MiddlewareMixin
 from django.conf import settings
 from urllib.parse import urlparse
 
-from meeting_center.utils.customized.my_auth import get_cookies_thread_local, U_T, Y_G
-
 logger = logging.getLogger("log")
 
 
@@ -39,11 +37,8 @@ class MyMiddleware(MiddlewareMixin):
                                                                   request.headers.get("Referer")):
                 return HttpResponse(status=403, content="invalid referer")
 
-    def process_response(self, request, response):
+    def process_response(self, _, response):
         if isinstance(response, HttpResponseBase):
-            # cookies = get_cookies_thread_local(request)
-            # response.set_cookie(U_T, cookies.get(U_T))
-            # response.set_cookie(Y_G, cookies.get(Y_G))
             response["X-XSS-Protection"] = "1; mode=block"
             response["X-Frame-Options"] = "DENY"
             response["X-Content-Type-Options"] = "nosniff"

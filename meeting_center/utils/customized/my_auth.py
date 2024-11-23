@@ -46,7 +46,6 @@ class AuthenticationAdapterImpl(AuthenticationAdapter):
             logger.error("check authentication:{}, and return {}".format(str(status_code), resp))
             raise AuthenticationFailed('authentication failed', code='authentication_failed')
         json_data = resp.json()
-        logger.info("receive the cookies:{}".format(resp.cookies))
         return json_data["data"], resp.cookies
 
 

@@ -8,6 +8,7 @@ from rest_framework.generics import GenericAPIView
 
 from meeting_center.utils.customized.my_auth import CommunityAuthentication
 from meeting_center.utils.customized.my_permission import MaintainerCommitterPermission
+from meeting_center.utils.customized.my_view import MyGenericAPIView
 from meeting_center.utils.ret_api import ret_json, capture_my_validation_exception, MyValidationError, MyNoPermission
 from meeting_center.utils.operation_log import OperationLogModule, OperationLogDesc, OperationLogType, \
     logger_wrapper, set_log_thread_local, log_key
@@ -19,7 +20,7 @@ from meeting.controller.serializers.meeting_serializers import MeetingSerializer
 from meeting_center.utils.ret_code import RetCode
 
 
-class MeetingView(GenericAPIView):
+class MeetingView(MyGenericAPIView):
     """create or list meeting"""
     serializer_class = MeetingSerializer()
     authentication_classes = (CommunityAuthentication,)
@@ -55,7 +56,7 @@ class MeetingView(GenericAPIView):
         return ret_json(status_code=status_code, **data)
 
 
-class SingleMeetingView(GenericAPIView):
+class SingleMeetingView(MyGenericAPIView):
     """get or update or delete meeting"""
     serializer_class = SingleMeetingSerializer()
     authentication_classes = (CommunityAuthentication,)
@@ -102,7 +103,7 @@ class SingleMeetingView(GenericAPIView):
         return ret_json(status_code=status_code, **data)
 
 
-class MeetingPlatformView(GenericAPIView):
+class MeetingPlatformView(MyGenericAPIView):
     authentication_classes = (CommunityAuthentication,)
     permission_classes = (MaintainerCommitterPermission,)
     app_class = MeetingApp()
@@ -113,7 +114,7 @@ class MeetingPlatformView(GenericAPIView):
         return ret_json(status_code=status_code, **data)
 
 
-class MeetingGroupView(GenericAPIView):
+class MeetingGroupView(MyGenericAPIView):
     authentication_classes = (CommunityAuthentication,)
     permission_classes = (MaintainerCommitterPermission,)
     app_class = MeetingGroupApp()
