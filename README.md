@@ -7,7 +7,8 @@ Provide meeting management capabilities for the official websites of various com
 
 ![1732351703329](doc/assets/1732351703329.png)
 
-+ openUBMC, openGuass, and MindSpore all use one source code to run multiple services
++ openUBMC, openGuass, and MindSpore all use one source code to run multiple services.
++ [meeting-platform](https://github.com/opensourceways/meeting-platform) provide a basic meeting platform for various open source communities.
 
 ### 3.How to use it
 
