@@ -158,11 +158,11 @@ def check_page_size(page, size):
     try:
         if page:
             page = int(page)
-            if page < 0:
+            if page <= 0:
                 raise ValueError("invalid page")
         if size:
             size = int(size)
-            if size < 0 or size > 50:
+            if size <= 0 or size > 50:
                 raise ValueError("invalid size")
         return page, size
     except ValueError as e:
