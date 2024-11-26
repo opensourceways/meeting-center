@@ -164,7 +164,7 @@ def check_page_size(page, size):
             size = int(size)
             if size < 0 or size > 50:
                 raise ValueError("invalid size")
+        return page, size
     except ValueError as e:
         logger.info("page or size fault:{}".format(e))
-    finally:
-        return page, size
+        raise MyValidationError(RetCode.STATUS_PARAMETER_ERROR)
