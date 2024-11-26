@@ -13,7 +13,7 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
 class RequestHandler:
-    def __init__(self, username=None, password=None, timeout=None, verify=False):
+    def __init__(self, username=None, password=None, timeout=None, verify=True):
         self.timeout = timeout if not timeout else 60
         if username and password:
             self._auth = HTTPBasicAuth(username, password)

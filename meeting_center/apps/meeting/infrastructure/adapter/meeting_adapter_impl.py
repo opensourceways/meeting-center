@@ -26,7 +26,7 @@ class MeetingAdapterImpl(MeetingAdapter):
         self.url = meeting_platform_info.get("URL")
         username = meeting_platform_info.get("USERNAME")
         pwd = meeting_platform_info.get("PASSWORD")
-        self._request_handler = RequestHandler(username, pwd)
+        self._request_handler = RequestHandler(username, pwd, verify=False)
 
     def create(self, meeting_data):
         url = self.create_url.format(self.url)
