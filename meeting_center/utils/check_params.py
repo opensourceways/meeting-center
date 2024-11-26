@@ -152,3 +152,19 @@ def check_duration(start, end, date, now_time):
         logger.error('The start time {} should not be later than the end time {}'.format(str(start), str(end)))
         raise MyValidationError(RetCode.STATUS_START_LT_END)
     return err_msg
+
+
+def check_page_size(page, size):
+    try:
+        if page:
+            page = int(page)
+            if page <= 0:
+                raise ValueError("invalid page")
+        if size:
+            size = int(size)
+            if size <= 0 or size > 50:
+                raise ValueError("invalid size")
+        return page, size
+    except ValueError as e:
+        logger.info("page or size fault:{}".format(e))
+        raise MyValidationError(RetCode.STATUS_PARAMETER_ERROR)

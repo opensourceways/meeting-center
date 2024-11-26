@@ -5,6 +5,7 @@
 # @FileName: meeting.py
 # @Software: PyCharm
 import logging
+import datetime
 from django.conf import settings
 
 from meeting.infrastructure.dao.meeting_group_user_dao import MeetingGroupUserDao
@@ -77,7 +78,10 @@ class MeetingApp:
         """get meeting date"""
         query_condition = {
             "community": settings.COMMUNITY,
-            "date": date,
             "is_delete": False
         }
+        if date:
+            query_condition["date"] = date
+        else:
+            query_condition["date"] = datetime.datetime.now().strftime("%Y-%m-%d")
         return self.meeting_adapter_impl.list(**query_condition)
