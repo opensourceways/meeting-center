@@ -6,6 +6,10 @@
 # @Description :
 import requests
 from requests.auth import HTTPBasicAuth
+# noinspection PyUnresolvedReferences
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
 class RequestHandler:

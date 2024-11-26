@@ -22,18 +22,14 @@ logger = logging.getLogger("log")
 
 class MeetingSerializer(MyBaseSerializer):
     """MeetingSerializer for get a meeting and create meeting"""
+    write_fields = [
+        "topic", "group_name", "platform", "date", "start", "end", "is_record"
+    ]
 
     def validate_group_name(self, value):
         """check length of 64"""
         check_field(value, 64)
         check_invalid_content(value)
-        return value
-
-    def validate_community(self, value):
-        """check community"""
-        if value not in settings.COMMUNITY_SUPPORT:
-            logger.error("community {} is not exist in COMMUNITY_SUPPORT".format(value))
-            raise MyValidationError(RetCode.STATUS_PARAMETER_ERROR)
         return value
 
     def validate_topic(self, value):
@@ -88,7 +84,14 @@ class MeetingSerializer(MyBaseSerializer):
             return value
 
     def validate(self, attrs):
+        # check the required parameters
+        lack_params = set(self.write_fields) - set(list(attrs.keys()))
+        if lack_params:
+            logger.error("create meeting lack the params:{}".format(lack_params))
+            raise MyValidationError(RetCode.STATUS_PARAMETER_ERROR)
+        # check every params
         super(MeetingSerializer, self).validate(attrs)
+        # check the etherpad
         etherpad = attrs.get("etherpad")
         if etherpad is not None and not etherpad.startswith(settings.COMMUNITY_ETHERPAD):
             logger.error("invalid etherpad:{}".format(etherpad))
@@ -97,8 +100,11 @@ class MeetingSerializer(MyBaseSerializer):
         return attrs
 
 
-class SingleMeetingSerializer(MeetingSerializer):
+class SingleMeetingSerializer(MyBaseSerializer):
     """UpdateMeetingSerializer for update meeting"""
+    write_fields = [
+        "topic", "date", "start", "end", "is_record"
+    ]
 
     def validate_topic(self, value):
         """check length of 128，not include \r\n url xss"""
@@ -144,11 +150,18 @@ class SingleMeetingSerializer(MeetingSerializer):
     def validate(self, attrs):
         """all validate data"""
         try:
+            # 1.check requirements
+            lack_params = set(self.write_fields) - set(list(attrs.keys()))
+            if lack_params:
+                logger.error("put meeting lack the params:{}".format(lack_params))
+                raise MyValidationError(RetCode.STATUS_PARAMETER_ERROR)
+            # 2.check every params
+            super(SingleMeetingSerializer, self).validate(attrs)
+            # 3.check the etherpad
             etherpad = attrs.get("etherpad")
             if etherpad is not None and not etherpad.startswith(settings.COMMUNITY_ETHERPAD):
                 logger.error("invalid etherpad:{}".format(etherpad))
                 raise MyValidationError(RetCode.STATUS_PARAMETER_ERROR)
-            super(SingleMeetingSerializer, self).validate(attrs)
             check_duration(attrs["start"], attrs["end"], attrs["date"], datetime.now())
             return attrs
         except (ValueError, KeyError) as e:

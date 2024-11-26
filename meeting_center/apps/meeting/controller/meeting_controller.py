@@ -6,6 +6,7 @@
 # @Software: PyCharm
 from rest_framework.generics import GenericAPIView
 
+from meeting_center.utils.check_params import check_page_size
 from meeting_center.utils.customized.my_auth import CommunityAuthentication
 from meeting_center.utils.customized.my_permission import MaintainerCommitterPermission
 from meeting_center.utils.customized.my_view import MyGenericAPIView
@@ -43,6 +44,7 @@ class MeetingView(MyGenericAPIView):
         """list the meeting"""
         page = self.request.query_params.get("page")
         size = self.request.query_params.get("size")
+        page, size = check_page_size(page, size)
         order_by = request.query_params.get("order_by")
         if order_by and order_by not in self.order_by:
             raise MyValidationError(RetCode.STATUS_PARAMETER_ERROR)

@@ -77,7 +77,8 @@ class MeetingApp:
         """get meeting date"""
         query_condition = {
             "community": settings.COMMUNITY,
-            "date": date,
             "is_delete": False
         }
+        if date:
+            query_condition["date"] = date
         return self.meeting_adapter_impl.list(**query_condition)
