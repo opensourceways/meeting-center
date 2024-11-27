@@ -4,6 +4,7 @@
 # @Author  : Tom_zc
 # @FileName: meeting_controller.py
 # @Software: PyCharm
+from rest_framework import permissions
 from rest_framework.generics import GenericAPIView
 
 from meeting_center.utils.check_params import check_page_size
@@ -118,7 +119,7 @@ class MeetingPlatformView(MyGenericAPIView):
 
 class MeetingGroupView(MyGenericAPIView):
     authentication_classes = (CommunityAuthentication,)
-    permission_classes = (MaintainerCommitterPermission,)
+    permission_classes = (permissions.IsAuthenticated,)
     app_class = MeetingGroupApp()
 
     def get(self, request, *args, **kwargs):
