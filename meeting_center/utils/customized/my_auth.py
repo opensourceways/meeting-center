@@ -36,6 +36,10 @@ class AuthenticationAdapterImpl(AuthenticationAdapter):
         self._url = settings.ONEID_AUTHORIZATION_URL
 
     def check(self, cookies, headers):
+        token = headers.get("HTTP_TOKEN") or headers.get("Token")
+        if token != cookies.get(U_T):
+            logger.error("check authentication failed and token is not consistency")
+            raise AuthenticationFailed('authentication failed', code='authentication_failed')
         parse_headers = {
             "Token": cookies.get(U_T),
             "Referer": headers.get("Referer")
