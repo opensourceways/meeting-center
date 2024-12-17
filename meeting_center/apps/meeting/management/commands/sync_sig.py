@@ -67,13 +67,17 @@ class DsApi:
         sig_infos = dict()
         for sig in sig_list:
             users = list()
-            users.extend(sig["maintainers"])
-            users.extend(sig["committers"])
+            if sig.get("maintainers"):
+                users.extend(sig["maintainers"])
+            if sig.get("maintainer_info"):
+                users.extend([sig["gitcode_id"] for sig in sig["maintainer_info"]])
+            if sig.get("committers"):
+                users.extend(sig["committers"])
             sig_info = {
                 "email_list": sig["mailing_list"],
                 "group_name": sig["sig_name"],
                 "etherpad": "{}/p/{}".format(settings.COMMUNITY_ETHERPAD, sig["sig_name"]),
-                "users": users
+                "users": list(set(users))
             }
             sig_infos.update({sig["sig_name"]: sig_info})
         return sig_infos
