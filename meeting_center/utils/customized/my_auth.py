@@ -50,7 +50,13 @@ class AuthenticationAdapterImpl(AuthenticationAdapter):
             logger.error("check authentication:{}, and return {}".format(str(status_code), resp))
             raise AuthenticationFailed('authentication failed', code='authentication_failed')
         json_data = resp.json()
-        return json_data["data"], resp.cookies
+        identities = json_data["data"].get("identities")
+        if isinstance(identities, list):
+            login_names = [identity["login_name"] for identity in identities if identity["identity"] == "gitcode"]
+            if len(login_names) > 0:
+                return login_names[0], resp.cookies
+        logger.error("check authentication invalid identities")
+        raise AuthenticationFailed('authentication failed', code='authentication_failed')
 
 
 def set_cookies_thread_local(request, value, key=_COOKIES_KEY):
@@ -66,7 +72,7 @@ def get_cookies_thread_local(request, key=_COOKIES_KEY):
 class CommunityAuthentication(RemoteUserAuthentication):
     def authenticate(self, request):
         authentication_adapter = AuthenticationAdapterImpl()
-        user_info, cookies = authentication_adapter.check(request.COOKIES, request.META)
+        username, cookies = authentication_adapter.check(request.COOKIES, request.META)
         set_cookies_thread_local(request, cookies)
-        user = User(username=user_info["username"], is_active=True)
+        user = User(username=username, is_active=True)
         return user, None
